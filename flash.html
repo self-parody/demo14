@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./flash.css">
+    <script src="./move.js"></script>
+ 
+</head>
+<body>
+    <div class="box" id="box">
+        <div class="show">
+            <div class="zone-left">
+                <a href="javascipt:;" class="arr-l">&lt;</a>
+            </div>
+            <div class="zone-right">
+                <a href="javascipt:;" class="arr-r">&gt;</a>
+            </div>
+
+            <ul class="show-img">
+
+                <li style="z-index: 3;"><a href="javascipt:;"><img src="./image/方1.jpeg" alt=""></a></li>
+                <li><a href="javascipt:;"><img src="./image/方2.jpeg" alt=""></a></li>
+                <li><a href="javascipt:;"><img src="./image/方3.jpeg" alt=""></a></li>
+                <li><a href="javascipt:;"><img src="./image/方4.jpeg" alt=""></a></li>
+                <li><a href="javascipt:;"><img src="./image/方5.jpeg" alt=""></a></li>
+                <li><a href="javascipt:;"><img src="./image/方6.jpeg" alt=""></a></li> 
+
+            </ul>
+            <div class="info">
+                <span class="title">要快乐哦</span>
+                <span> <span class="tag">1</span>/6</span>
+            </div>          
+        </div>
+
+        <div class="list">
+            <ul>
+                <li style="opacity: 1;"><a href="javascipt:;"><img src="./image/方1.jpeg" alt=""></a></li>
+                <li><a href="javascipt:;"><img src="./image/方2.jpeg" alt=""></a></li>
+                <li><a href="javascipt:;"><img src="./image/方3.jpeg" alt=""></a></li>
+                <li><a href="javascipt:;"><img src="./image/方4.jpeg" alt=""></a></li>
+                <li><a href="javascipt:;"><img src="./image/方5.jpeg" alt=""></a></li>
+                <li><a href="javascipt:;"><img src="./image/方6.jpeg" alt=""></a></li>
+    
+            </ul>
+        </div>
+        
+    </div>
+
+
+    
+    <script>
+        //定义一个通过类名获取相应元素的函数
+        function getByClass(oParent,sClass){
+            var oSub=oParent.getElementsByTagName('*');
+            var result=[];
+            for(var i=0;i<oSub.length;i++){
+                if(oSub[i].className==sClass){
+                    result.push(oSub[i]);
+                }
+            }
+            return result;
+        }
+        var oBox=document.getElementById('box');
+        var oShowBox=getByClass(oBox,'show')[0];
+        var oZoneLeft=getByClass(oBox,'zone-left')[0];
+        var oZoneRight=getByClass(oBox,'zone-right')[0];
+        var oPre=getByClass(oBox,'arr-l')[0];
+        var oNext=getByClass(oBox,'arr-r')[0];
+        var aImg=getByClass(oBox,'list')[0].getElementsByTagName('li');
+        var aShowImg=getByClass(oBox,'show-img')[0].children;
+        var aImgList=getByClass(oBox,'list')[0].children[0];
+        var title=getByClass(oBox,'title')[0];
+        var tag=getByClass(oBox,'tag')[0];
+        var titleData=['要快乐哦','假期快乐','一起玩吧','独自旅行','野餐快乐','休息一下'];
+        
+        var flag=0;//存储当次点击的图片索引
+        var last=0;//存储上次点击的图片索引 
+        //切换函数
+        function tab(){
+             //先将所有图片层级变成一致
+            for(var j=0;j<aShowImg.length;j++){
+                aShowImg[j].style.zIndex=2;
+            }
+            //提高上次点击的图片层级
+            aShowImg[last].style.zIndex=3;
+            //使本次点击图片的层级更高
+            aShowImg[flag].style.zIndex=4;
+            //实现下拉运动          
+            aShowImg[flag].style.height=0;
+            move(aShowImg[flag],'height',300);
+            //当前缩略图高亮
+            for(var j=0;j<aImg.length;j++){
+                move(aImg[j],'opacity',0.5);                                
+            }              
+            move(aImg[flag],'opacity',1); 
+            
+            // 缩略图滚动效果：从点击第3张图(下标idx=2)开始，ul逐渐向左滚动-(idx-1)*li.width的距离
+            if(flag==0){
+                move(aImgList,'left',0);
+            }
+            else if(flag==aImg.length-1){
+                move(aImgList,'left',-(aImg.length-3)*aImg[0].offsetWidth);
+            }
+            else{
+                move(aImgList,'left',-(flag-1)*aImg[0].offsetWidth);
+            }  
+            //info切换
+            tag.innerHTML=flag+1;
+            title.innerHTML=titleData[flag];
+        }
+
+        // 左右按钮
+        oZoneLeft.onmouseover=oPre.onmouseover=function(){
+            move(oPre,'opacity',1);
+        }
+        oZoneLeft.onmouseout=function(){
+            move(oPre,'opacity',0);
+        }
+        oZoneRight.onmouseover=function(){
+            move(oNext,'opacity',1);
+        }
+        oZoneRight.onmouseout=function(){
+            move(oNext,'opacity',0);
+        }
+        oPre.onclick=function(){
+            last=flag;
+            flag--;
+            if(flag==-1){
+                flag=aImg.length-1;
+            }         
+            tab();           
+        }     
+        oNext.onclick=function(){
+
+            last=flag;
+            flag++;
+            if(flag==aImg.length){
+                flag=0;
+            }         
+            tab();                    
+        }
+        //自动播放
+        var timer=null;
+        timer=setInterval(oNext.onclick,3000);
+        
+        oShowBox.onmouseover=function(){          
+            clearInterval(timer);
+        }
+        oShowBox.onmouseout=function(){          
+            timer=setInterval(oNext.onclick,3000);
+        }
+       
+        for(var i=0;i<aImg.length;i++){   
+            //将索引以自定义属性存储       
+            aImg[i].idx=i;
+            //点击缩略图进行大图切换
+            aImg[i].onclick=function(){ 
+ 
+                last=flag;
+                //若点击的是同张图片则不执行后续代码
+                if(flag==this.idx){
+                    return;
+                }    
+               
+                flag=this.idx;
+                
+                tab();
+                /*封装成切换函数
+                //先将所有图片层级变成一致
+                for(var j=0;j<aShowImg.length;j++){
+                    aShowImg[j].style.zIndex=2;
+                }
+                //提高上次点击的图片层级
+                aShowImg[last].style.zIndex=3;
+                //使本次点击图片的层级更高
+                aShowImg[flag].style.zIndex=4;
+
+                //实现下拉运动          
+                aShowImg[flag].style.height=0;
+                move(aShowImg[flag],'height',300);
+
+                //当前缩略图高亮
+                for(var j=0;j<aImg.length;j++){
+                    move(aImg[j],'opacity',0.5);                                
+                }              
+                move(this,'opacity',1);    
+                */          
+            };
+
+            //移入移出缩略图透明度变化
+            aImg[i].onmouseover=function(){
+                move(this,'opacity',1)
+            }
+            aImg[i].onmouseout=function(){
+                //当鼠标移出，当前为点击状态的缩略图应保持高亮
+                if(flag==this.idx){
+                    move(this,'opacity',1);              
+                }
+                else{
+                    move(this,'opacity',0.5)
+                }
+            }
+        }
+
+        
+   
+    </script>
+</body>
+</html>
